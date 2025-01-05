@@ -7,6 +7,8 @@ import WithdrawForm from "./deposit/forms/WithdrawMoney.jsx";
 import useAuth from "../hooks/useAuth.jsx";
 import TransferForm from "./deposit/forms/TransferForm.jsx";
 import AccountInfoForm from "./deposit/forms/AccountInfoForm.jsx";
+import ExportTabv0 from "./ExportTabv0.jsx";
+import ExportTab from "./export/ExportTab.jsx";
 
 function SideBar() {
 
@@ -41,8 +43,8 @@ function SideBar() {
                 return <h1>Банковские ячейки</h1>
             // return <BankCells />
             case 'report':
-                return <h1>Отчет и экспорт</h1>
-                // return <AccountInfoForm/>
+                // return <h1>Отчет и экспорт</h1>
+                return <ExportTab/>
             default:
                 return <WithdrawForm/>
         }
