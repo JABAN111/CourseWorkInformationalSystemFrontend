@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -9,6 +9,8 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress'; // Импортируем индикатор загрузки
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import authFetch from "../../../hooks/authFetch.jsx";
+import {GET_DEPOSITS, WITHDRAW_DEPOSIT} from "../../../config.js";
 
 const theme = createTheme({
     palette: {
@@ -24,6 +26,7 @@ const theme = createTheme({
 });
 
 const WithdrawForm = () => {
+    const [amount, setAmount] = useState(''); // Состояние для суммы
     const [passport, setPassport] = useState('');
     const [accounts, setAccounts] = useState([]);
     const [selectedAccount, setSelectedAccount] = useState('');
@@ -38,26 +41,36 @@ const WithdrawForm = () => {
         setSelectedAccount(event.target.value);
     };
 
+    const handleAmountChange = (event) => {
+        setAmount(event.target.value);
+    };
+
     const handleSendPassport = () => {
         if (!passport) {
             alert('Пожалуйста, введите паспортные данные.');
             return;
         }
 
-        setLoading(true); // Начинаем загрузку
+        setLoading(true);
 
-        // Имитация запроса на сервер с задержкой
-        setTimeout(() => {
-            // Здесь должна быть логика запроса к API для получения счетов
-            // После успешного получения данных:
-            setAccounts([
-                { id: 1, name: 'Основной счет (RUB)', balance: 10000 },
-                { id: 2, name: 'Депозитный счет (USD)', balance: 500 },
-                { id: 3, name: 'Накопительный счет (EUR)', balance: 2000 },
-            ]);
-            setPassportSent(true);
-            setLoading(false); // Заканчиваем загрузку
-        }, 1000); // Задержка в 1 секунду
+
+        authFetch(
+            `${GET_DEPOSITS}/${passport}`,
+            {
+                method: 'GET',
+            }
+        ).then(r  => r.json()).then(
+            data => {
+                console.log(data)
+                setAccounts(data)
+                setPassportSent(true)
+                setLoading(false)
+            }
+        ).catch(r => {
+            console.error("Невалидный паспорт, ошибка:", r)
+            alert("Невалидный паспорт")
+        })
+
     };
 
     const handleWithdraw = () => {
@@ -65,8 +78,27 @@ const WithdrawForm = () => {
             alert('Пожалуйста, выберите счет.');
             return;
         }
-        console.log('Снятие средств:', 'Паспорт:', passport, 'Счет:', selectedAccount);
-        // Здесь должна быть логика снятия средств
+        authFetch(
+            WITHDRAW_DEPOSIT, {
+            method: 'POST',
+            headers: {
+                "content-type": "application/json",
+            },
+            body: JSON.stringify({
+                fromAccount: selectedAccount,
+                amount: amount,
+                toAccount: selectedAccount
+            }),
+
+        }).then((response) => {
+            if (response.status === 200) {
+                alert('Средства успешно сняты.');
+            } else {
+                alert('Ошибка снятия средств.');
+            }
+        })
+        console.log(`url: ${WITHDRAW_DEPOSIT}`)
+
         setSelectedAccount('');
         setPassport('');
         setPassportSent(false);
@@ -99,8 +131,11 @@ const WithdrawForm = () => {
                     fullWidth
                     disabled={passportSent || loading} // Блокируем поле после отправки или во время загрузки
                 />
-                <Button variant="contained" onClick={handleSendPassport} disabled={passportSent || loading}>
-                    {loading ? <CircularProgress size={24} /> : 'Отправить паспорт'} {/* Отображаем индикатор загрузки */}
+                <Button
+                    variant="contained"
+                    onClick={handleSendPassport}
+                        disabled={passportSent || loading}>
+                    {loading ? <CircularProgress size={24} /> : 'Отправить паспорт'}
                 </Button>
                 <FormControl fullWidth disabled={!passportSent}> {/* Блокируем, пока не отправлен паспорт */}
                     <InputLabel id="account-label">Счет</InputLabel>
@@ -113,11 +148,23 @@ const WithdrawForm = () => {
                     >
                         {accounts.map((acc) => (
                             <MenuItem key={acc.id} value={acc.id}>
-                                {acc.name} (Баланс: {acc.balance})
+                                {acc.depositAccountName} (Баланс: {acc.balance}) (Валюта: {acc.moneyType})
                             </MenuItem>
                         ))}
                     </Select>
+
                 </FormControl>
+                <TextField
+                    id="amount"
+                    label="Сумма снятия"
+                    variant="outlined"
+                    type="number" // Указываем тип number для ввода чисел
+                    value={amount}
+                    onChange={handleAmountChange}
+                    fullWidth
+                    inputProps={{ min: 0 }} // Устанавливаем минимальное значение
+                    disabled={!passportSent || !selectedAccount}
+                />
                 <Button variant="contained" onClick={handleWithdraw} disabled={!selectedAccount}>
                     Снять
                 </Button>

@@ -1,10 +1,12 @@
 import "react";
 import './SideBar.scss';
-import {useState} from "react";
-import DepositMainPage from "./DepositMainPage.jsx";
-import NewAccountForm from "./deposit/NewAccountForm.jsx";
-import WithdrawForm from "./deposit/WithdrawMoney.jsx";
+import React, {useState} from "react";
+import DepositMainPage from "./deposit/DepositMainPage.jsx";
+import NewAccountForm from "./deposit/forms/NewAccountForm.jsx";
+import WithdrawForm from "./deposit/forms/WithdrawMoney.jsx";
 import useAuth from "../hooks/useAuth.jsx";
+import TransferForm from "./deposit/forms/TransferForm.jsx";
+import AccountInfoForm from "./deposit/forms/AccountInfoForm.jsx";
 
 function SideBar() {
 
@@ -39,8 +41,8 @@ function SideBar() {
                 return <h1>Банковские ячейки</h1>
             // return <BankCells />
             case 'report':
-                // return <h1>Отчет и экспорт</h1>
-                return <WithdrawForm/>
+                return <h1>Отчет и экспорт</h1>
+                // return <AccountInfoForm/>
             default:
                 return <WithdrawForm/>
         }
@@ -87,7 +89,7 @@ function SideBar() {
                             onClick={newActiveTab('report')}
                             className={`menu-item ${activeTab === 'report' ? 'active' : ''}`}
                         >
-                            Отчет и экспорт
+                            Экспорт
                         </button>
                     </div>
                 </nav>

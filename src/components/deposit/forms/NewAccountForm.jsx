@@ -8,8 +8,9 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
-import authFetch from "../../hooks/authFetch.jsx";
-import {CREATE_DEPOSIT} from "../../config.js";
+import authFetch from "../../../hooks/authFetch.jsx";
+import {CREATE_DEPOSIT} from "../../../config.js";
+import {Fade, Slide, Snackbar} from "@mui/material";
 // import authFetch from "../../hooks/authFetch.jsx";
 
 const theme = createTheme({
@@ -30,7 +31,9 @@ const theme = createTheme({
 const NewAccountForm = (
     {onClose}
 ) => {
-    const [currency, setCurrency] = useState('RUB');
+
+
+    const [currency, setCurrency] = useState('RULEON');
     const [accountName, setAccountName] = useState('');
     const [userPassport, setUserPassport] = useState('');
 
@@ -41,6 +44,8 @@ const NewAccountForm = (
     const handleAccountNameChange = (event) => {
         setAccountName(event.target.value)
     }
+
+
 
     const getUserData = () => {
         const userInfo = sessionStorage.getItem('userInfo');
@@ -54,6 +59,7 @@ const NewAccountForm = (
 
     const getUserEmail = () => {
         const data = getUserData()
+
         return `${data.email}`
     }
 
@@ -80,16 +86,19 @@ const NewAccountForm = (
                     },
                     body: JSON.stringify(body)
                 }
-            ).then(r => r.json()).then(data => console.log(data))
+            ).then(r => r.json()).then(data => {console.log(data)
+            }
+            )
             console.log(body)
         }catch (error) {
             console.error('Error creating account:', error);
         }
-
         onClose()
+
     };
 
     return (
+        <>
         <ThemeProvider theme={theme}>
             <Box
                 sx={{
@@ -151,6 +160,9 @@ const NewAccountForm = (
                 </Button>
             </Box>
         </ThemeProvider>
+
+        </>
+
     );
 };
 
