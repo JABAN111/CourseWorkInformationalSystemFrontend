@@ -3,6 +3,8 @@ import NewAccountForm from "../deposit/forms/NewAccountForm.jsx";
 import Modal from "@mui/material/Modal";
 import {useState} from "react";
 import ExportConfigModal from "./deposit/ExportConfigModal.jsx";
+import authFetch from "../../hooks/authFetch.jsx";
+import {EXPORT_XLSX, GET_DEPOSITS} from "../../config.js";
 
 const modalStyles = {
     position: 'absolute',
@@ -22,6 +24,18 @@ const ExportTab = () => {
 
     const handleExport = (config) => {
         console.log("Отправляем запрос на сервер с данными:", config);
+
+        authFetch(
+            `${GET_DEPOSITS}/${EXPORT_XLSX}`,
+            {
+                method: 'GET',
+                // body: JSON.stringify(config),
+            }
+
+        ).then(r =>
+            console.log(r)
+        )
+
         // Здесь реализуйте отправку запроса на сервер
     };
     // const [newBankExportModalOpen, setNewBankExportModalOpen] = useState(false);
