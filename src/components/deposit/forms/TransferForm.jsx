@@ -15,6 +15,8 @@ import {
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import {ADD_TO_DEPOSIT, GET_DEPOSITS, TRANSFER} from "../../../config.js";
 import authFetch from "../../../hooks/authFetch.jsx";
+import '../../../i18n.js'
+import {useTranslation} from "react-i18next";
 
 const theme = createTheme({
     palette: {
@@ -29,16 +31,18 @@ const theme = createTheme({
     },
 });
 
-const TransferForm = () => {
-    const [amount, setAmount] = useState(""); // Сумма
-    const [passport, setPassport] = useState(""); // Паспорт
-    const [accounts, setAccounts] = useState([]); // Список своих счетов
-    const [fromAccount, setFromAccount] = useState(""); // Счет, с которого списываются средства
-    const [toAccount, setToAccount] = useState(""); // Счет, на который переводятся средства
-    const [passportSent, setPassportSent] = useState(false); // Флаг отправки паспорта
-    const [loading, setLoading] = useState(false); // Загрузка
-    const [transferToOwnAccount, setTransferToOwnAccount] = useState(false); // Чекбокс состояния
-    const [anotherAccount, setAnotherAccount] = useState(""); // Чужой счет
+const TransferForm = ({onClose, onSubmit}) => {
+    const [t] = useTranslation();
+
+    const [amount, setAmount] = useState("");
+    const [passport, setPassport] = useState("");
+    const [accounts, setAccounts] = useState([]);
+    const [fromAccount, setFromAccount] = useState("");
+    const [toAccount, setToAccount] = useState("");
+    const [passportSent, setPassportSent] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [transferToOwnAccount, setTransferToOwnAccount] = useState(false);
+    const [anotherAccount, setAnotherAccount] = useState("");
 
     const handlePassportChange = (event) => setPassport(event.target.value);
     const handleAmountChange = (event) => setAmount(event.target.value);
@@ -52,7 +56,7 @@ const TransferForm = () => {
 
     const handleSendPassport = () => {
         if (!passport) {
-            alert("Пожалуйста, введите паспортные данные.");
+            onSubmit('notifications.pleaseEnterID', 'warn')
             return;
         }
 
@@ -68,22 +72,22 @@ const TransferForm = () => {
             })
             .catch((r) => {
                 console.error("Ошибка:", r);
-                alert("Невалидный паспорт");
+                onSubmit('notifications.pleaseEnterID', 'warn')
                 setLoading(false);
             });
     };
 
     const handleTransfer = () => {
         if (!fromAccount) {
-            alert("Пожалуйста, выберите счет для списания.");
+            onSubmit(t('notifications.pleaseEnter.withdrawAccount'), 'warn')
             return;
         }
         if (!toAccount && transferToOwnAccount) {
-            alert("Пожалуйста, выберите счет для зачисления.");
+            onSubmit(t('notifications.pleaseEnter.putAccount'), 'warn')
             return;
         }
         if (!anotherAccount && !transferToOwnAccount) {
-            alert("Пожалуйста, введите счет другого аккаунта.");
+            onSubmit(t('notifications.pleaseEnter.enterOtherAccountValue'), 'warn')
             return;
         }
 
@@ -99,9 +103,9 @@ const TransferForm = () => {
             body: JSON.stringify(payload),
         }).then((response) => {
             if (response.status === 200) {
-                alert("Перевод выполнен успешно!");
+                onSubmit(t('notifications.operationSucceeded'), 'success')
             } else {
-                alert("Ошибка перевода.");
+                onSubmit(t('notifications.operationFailed'), 'error')
             }
         });
     };
@@ -121,12 +125,12 @@ const TransferForm = () => {
                 }}
             >
                 <Typography variant="h5" component="h2" gutterBottom>
-                    Перевод средств
+                    {t('depositMain.transferMoney.transfer')}
                 </Typography>
 
                 <TextField
                     id="passport"
-                    label="Паспортные данные"
+                    label={t('depositMain.transferMoney.accountId')}
                     variant="outlined"
                     value={passport}
                     onChange={handlePassportChange}
@@ -139,11 +143,13 @@ const TransferForm = () => {
                     onClick={handleSendPassport}
                     disabled={passportSent || loading}
                 >
-                    {loading ? <CircularProgress size={24} /> : "Отправить паспорт"}
+                    {loading ? <CircularProgress size={24} /> : t('depositMain.transferMoney.sendPassport')}
                 </Button>
 
                 <FormControl fullWidth disabled={!passportSent}>
-                    <InputLabel id="from-account-label">Счет списания</InputLabel>
+                    <InputLabel id="from-account-label">
+                        {t("depositMain.transferMoney.withdrawAccount")}
+                    </InputLabel>
                     <Select
                         labelId="from-account-label"
                         id="from-account"
@@ -152,7 +158,7 @@ const TransferForm = () => {
                     >
                         {accounts.map((acc) => (
                             <MenuItem key={acc.id} value={acc.id}>
-                                {acc.depositAccountName} (Баланс: {acc.balance}) (Валюта:{" "}
+                                {acc.depositAccountName} ({t('depositMain.transferMoney.balance')}: {acc.balance}) ({t('depositMain.transferMoney.currency')}:{" "}
                                 {acc.moneyType})
                             </MenuItem>
                         ))}
@@ -166,12 +172,12 @@ const TransferForm = () => {
                             onChange={handleToggleTransferToOwn}
                         />
                     }
-                    label="Перевести на один из своих счетов"
+                    label={t('depositMain.transferMoney.transferToUrSelf')}
                 />
 
                 {transferToOwnAccount ? (
                     <FormControl fullWidth disabled={!passportSent}>
-                        <InputLabel id="to-account-label">Счет зачисления</InputLabel>
+                        <InputLabel id="to-account-label">{t('depositMain.transferMoney.putAccount')}</InputLabel>
                         <Select
                             labelId="to-account-label"
                             id="to-account"
@@ -180,7 +186,7 @@ const TransferForm = () => {
                         >
                             {accounts.map((acc) => (
                                 <MenuItem key={acc.id} value={acc.id}>
-                                    {acc.depositAccountName} (Баланс: {acc.balance}) (Валюта:{" "}
+                                    {acc.depositAccountName} ({t('depositMain.transferMoney.balance')}: {acc.balance}) ({t('depositMain.transferMoney.currency')}:{" "}
                                     {acc.moneyType})
                                 </MenuItem>
                             ))}
@@ -189,7 +195,7 @@ const TransferForm = () => {
                 ) : (
                     <TextField
                         id="anotherAccount"
-                        label="Номер счета другого аккаунта"
+                        label={t("depositMain.transferMoney.otherAccount")}
                         variant="outlined"
                         value={anotherAccount}
                         disabled={!passportSent || !fromAccount}
@@ -200,7 +206,7 @@ const TransferForm = () => {
 
                 <TextField
                     id="amount"
-                    label="Сумма перевода"
+                    label={t("depositMain.transferMoney.transferAmount")}
                     variant="outlined"
                     type="number"
                     value={amount}
@@ -215,7 +221,7 @@ const TransferForm = () => {
                     onClick={handleTransfer}
                     disabled={!passportSent || !fromAccount || (!toAccount && !anotherAccount)}
                 >
-                    Перевести
+                    {t('depositMain.transferMoney.transferButton')}
                 </Button>
             </Box>
         </ThemeProvider>

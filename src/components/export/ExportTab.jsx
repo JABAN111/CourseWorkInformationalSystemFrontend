@@ -1,47 +1,52 @@
-import Box from "@mui/material/Box";
-import NewAccountForm from "../deposit/forms/NewAccountForm.jsx";
-import Modal from "@mui/material/Modal";
-import {useState} from "react";
+import { useState } from "react";
 import ExportConfigModal from "./deposit/ExportConfigModal.jsx";
+import ArtifactExportModal from "./artifact/ArtifactExportModal.jsx";
 import authFetch from "../../hooks/authFetch.jsx";
-import {EXPORT_XLSX, GET_DEPOSITS} from "../../config.js";
-
-const modalStyles = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    border: '2px solid #000',
-    boxShadow: 24,
-};
+import '../../i18n.js'
+import { EXPORT_XLSX, GET_DEPOSITS } from "../../config.js";
+import {useTranslation} from "react-i18next";
+import {Alert, Snackbar} from "@mui/material";
 
 const ExportTab = () => {
-    const [modalOpen, setModalOpen] = useState(false);
+    const { t } = useTranslation(); // Подключаем переводы
 
-    const handleOpen = () => setModalOpen(true);
-    const handleClose = () => setModalOpen(false);
+    const [notification, setNotification] = useState({
+        open: false,
+        message: '',
+        severity: 'success',
+    });
 
-    const handleExport = (config) => {
+    const showNotification = (message, severity = 'success') => {
+        setNotification({open: true, message, severity});
+    };
+    const handleCloseNotification = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setNotification((prev) => ({...prev, open: false}));
+    };
+
+    const [bankModalOpen, setBankModalOpen] = useState(false);
+    const [artifactModalOpen, setArtifactModalOpen] = useState(false);
+
+    const handleOpenBankModal = () => setBankModalOpen(true);
+    const handleCloseBankModal = () => setBankModalOpen(false);
+
+    const handleOpenArtifactModal = () => setArtifactModalOpen(true);
+    const handleCloseArtifactModal = () => setArtifactModalOpen(false);
+
+    const handleExportDeposit = (config) => {
         console.log("Отправляем запрос на сервер с данными:", config);
 
         authFetch(
             `${GET_DEPOSITS}/${EXPORT_XLSX}`,
             {
                 method: 'GET',
-                // body: JSON.stringify(config),
             }
-
-        ).then(r =>
-            console.log(r)
-        )
-
-        // Здесь реализуйте отправку запроса на сервер
+        ).then(response => console.log(response));
     };
-    // const [newBankExportModalOpen, setNewBankExportModalOpen] = useState(false);
-    // const handleOpenBankExportModal = () => setNewBankExportModalOpen(true);
-    // const handleCloseBankExportModal = () => setNewBankExportModalOpen(false);
 
+    // const handleExportArtifact = ()
 
     return (
         <div className="export">
@@ -49,29 +54,43 @@ const ExportTab = () => {
                 <section className="dashboard">
                     <div className="dashboard-grid">
                         <div className="dashboard-item">
-                            <div style={{cursor: 'pointer'}} onClick={handleOpen} className="icon">
-                                <img src="/logo/take/take.svg" alt="take money"/>
+                            <div style={{ cursor: "pointer" }} onClick={handleOpenBankModal} className="icon">
+                                <img src="/logo/take/take.svg" alt="take money" />
                             </div>
-                            <p>Банковские операции</p>
+                            <p>{t("export.bankOperations")}</p>
                         </div>
                         <div className="dashboard-item">
-                            <div>
-                                <img src="/logo/put.svg" alt="put money"/>
-                                <p>Операции, связанные с артефактом</p>
+                            <div style={{ cursor: "pointer" }} onClick={handleOpenArtifactModal} className="icon">
+                                <img src="/logo/put.svg" alt="put money" />
                             </div>
+                            <p>{t("export.artifactOperations")}</p>
                         </div>
                     </div>
                 </section>
             </main>
 
             <ExportConfigModal
-                open={modalOpen}
-                onClose={handleClose}
-                onSubmit={handleExport}
+                open={bankModalOpen}
+                onClose={handleCloseBankModal}
+                onSubmit={handleExportDeposit}
             />
+            <ArtifactExportModal
+                open={artifactModalOpen}
+                onClose={handleCloseArtifactModal}
+                onSubmit={handleExportDeposit}
+            />
+            <Snackbar
+                open={notification.open}
+                autoHideDuration={8000} // Увеличил время показа
+                onClose={handleCloseNotification}
+                anchorOrigin={{vertical: 'top', horizontal: 'right'}}
+            >
+                <Alert onClose={handleCloseNotification} severity={notification.severity} sx={{width: '100%'}}>
+                    {notification.message}
+                </Alert>
+            </Snackbar>
         </div>
-    )
-
-}
+    );
+};
 
 export default ExportTab;

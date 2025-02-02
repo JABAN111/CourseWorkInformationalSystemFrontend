@@ -9,9 +9,9 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import authFetch from "../../../hooks/authFetch.jsx";
+import '../../../i18n.js'
 import {CREATE_DEPOSIT} from "../../../config.js";
-import {Fade, Slide, Snackbar} from "@mui/material";
-// import authFetch from "../../hooks/authFetch.jsx";
+import {useTranslation} from "react-i18next";
 
 const theme = createTheme({
     palette: {
@@ -27,10 +27,11 @@ const theme = createTheme({
 });
 
 
-
 const NewAccountForm = (
-    {onClose}
+    {onClose, onSubmit}
 ) => {
+    const [t] = useTranslation();
+
 
 
     const [currency, setCurrency] = useState('RULEON');
@@ -44,7 +45,6 @@ const NewAccountForm = (
     const handleAccountNameChange = (event) => {
         setAccountName(event.target.value)
     }
-
 
 
     const getUserData = () => {
@@ -75,8 +75,9 @@ const NewAccountForm = (
                 balance: 0,
                 moneyType: currency
             }
-            console.log(body)
 
+
+            console.log('новый счет')
             authFetch(
                 CREATE_DEPOSIT,
                 {
@@ -86,11 +87,13 @@ const NewAccountForm = (
                     },
                     body: JSON.stringify(body)
                 }
-            ).then(r => r.json()).then(data => {console.log(data)
-            }
-            )
-            console.log(body)
-        }catch (error) {
+            ).then((response) => {
+                onSubmit(t("notifications.operationSucceeded"), 'success')
+                console.log(response)
+            }).catch(() =>
+                onSubmit(t('notifications.operationFailed'), 'error'))
+        } catch (error) {
+            onSubmit('notifications.operationFailed')
             console.error('Error creating account:', error);
         }
         onClose()
@@ -99,67 +102,64 @@ const NewAccountForm = (
 
     return (
         <>
-        <ThemeProvider theme={theme}>
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 2,
-                    p: 3,
-                    bgcolor: 'background.paper',
-                    borderRadius: 1,
-                    maxWidth: 400, // Ограничение ширины для лучшей читаемости
-                    margin: '0 auto'
-                }}
-            >
-                <Typography variant="h5" component="h2" gutterBottom>
-                    Новый счет
-                </Typography>
+            <ThemeProvider theme={theme}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 2,
+                        p: 3,
+                        bgcolor: 'background.paper',
+                        borderRadius: 1,
+                        maxWidth: 400,
+                        margin: '0 auto'
+                    }}
+                >
+                    <Typography variant="h5" component="h2" gutterBottom>
+                        {t("depositMain.creating.newVault")}
+                    </Typography>
 
-                <TextField
-                    id="account-name"
-                    label="Название счета"
-                    // variant="outlined"
-                    value={accountName}
-                    onChange={handleAccountNameChange}
-                    fullWidth
-                />
+                    <TextField
+                        id="account-name"
+                        label={t("depositMain.creating.vaultName")}
+                        value={accountName}
+                        onChange={handleAccountNameChange}
+                        fullWidth
+                    />
 
-                <TextField
-                    id={"user-passport"}
-                    label={"Паспорт пользователя"}
-                    variant={"outlined"}
-                    value={userPassport}
-                    onChange={(event) => setUserPassport(event.target.value)}
-                    fullWidth
-                />
+                    <TextField
+                        id={"user-passport"}
+                        label={t("depositMain.creating.accountId")}
+                        variant={"outlined"}
+                        value={userPassport}
+                        onChange={(event) => setUserPassport(event.target.value)}
+                        fullWidth
+                    />
 
-                <FormControl fullWidth>
-
+                    <FormControl fullWidth>
 
 
-                    <InputLabel id="currency-label">Валюта</InputLabel>
+                        <InputLabel id="currency-label">
+                            {t("depositMain.creating.currency")}
+                        </InputLabel>
 
-                    <Select
-                        labelId="currency-label"
-                        id="currency"
-                        value={currency}
-                        label="Валюта"
-                        onChange={handleChange}
-                    >
-                        <MenuItem value={'RULEON'}>Рулеоны</MenuItem>
-                        <MenuItem value={'GALEON'}>Галеоны</MenuItem>
-                        <MenuItem value={'EULEON'}>Евролеоны</MenuItem>
-
-                    </Select>
-
-
-                </FormControl>
-                <Button variant="contained" onClick={handleSubmit}>
-                    Создать счет
-                </Button>
-            </Box>
-        </ThemeProvider>
+                        <Select
+                            labelId="currency-label"
+                            id="currency"
+                            value={currency}
+                            label={t("depositMain.creating.currency")}
+                            onChange={handleChange}
+                        >
+                            <MenuItem value={'RULEON'}>{t("depositMain.creating.currencyType.RULEON")}</MenuItem>
+                            <MenuItem value={'GALEON'}>{t("depositMain.creating.currencyType.GALEON")}</MenuItem>
+                            <MenuItem value={'EULEON'}>{t("depositMain.creating.currencyType.EULEON")}</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <Button variant="contained" onClick={handleSubmit}>
+                        {t("depositMain.creating.create")}
+                    </Button>
+                </Box>
+            </ThemeProvider>
 
         </>
 

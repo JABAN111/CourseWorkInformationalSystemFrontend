@@ -8,6 +8,8 @@ import {DataGrid} from '@mui/x-data-grid';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import authFetch from "../../../hooks/authFetch.jsx";
 import {GET_DEPOSITS} from "../../../config.js";
+import '../../../i18n.js'
+import {useTranslation} from "react-i18next";
 
 const theme = createTheme({
     palette: {
@@ -23,6 +25,8 @@ const theme = createTheme({
 });
 
 const AccountInfoForm = () => {
+    const [t] = useTranslation();
+
     const [passport, setPassport] = useState('');
     const [accounts, setAccounts] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -61,9 +65,9 @@ const AccountInfoForm = () => {
 
     const columns = [
         {field: 'id', headerName: 'ID', width: 70},
-        {field: 'depositAccountName', headerName: 'Название счета', width: 200},
-        {field: 'balance', headerName: 'Баланс', width: 130},
-        {field: 'moneyType', headerName: 'Валюта', width: 90}
+        {field: 'depositAccountName', headerName: t('depositMain.accountInfoComponent.accountName'), width: 200},
+        {field: 'balance', headerName: t('depositMain.accountInfoComponent.balance'), width: 130},
+        {field: 'moneyType', headerName: t('depositMain.accountInfoComponent.currency'), width: 90}
     ];
 
     return (
@@ -76,16 +80,16 @@ const AccountInfoForm = () => {
                     p: 3,
                     bgcolor: 'background.paper',
                     borderRadius: 1,
-                    maxWidth: 600, // Увеличил ширину для таблицы
+                    maxWidth: 600,
                     margin: '0 auto',
                 }}
             >
                 <Typography variant="h5" component="h2" gutterBottom>
-                    Информация о счетах
+                    {t('depositMain.accountInfoComponent.accountInfo')}
                 </Typography>
                 <TextField
                     id="passport"
-                    label="Паспортные данные"
+                    label={t('depositMain.accountInfoComponent.accountId')}
                     variant="outlined"
                     value={passport}
                     onChange={handlePassportChange}
@@ -97,7 +101,7 @@ const AccountInfoForm = () => {
                     onClick={handleGetAccounts}
                     disabled={loading || passportSent}
                 >
-                    {loading ? <CircularProgress size={24}/> : 'Получить информацию'}
+                    {loading ? <CircularProgress size={24}/> : t('depositMain.accountInfoComponent.getInfo')}
                 </Button>
                 {error && (
                     <Typography color="error" mt={2}>
@@ -111,19 +115,19 @@ const AccountInfoForm = () => {
                         <DataGrid
                             rows={accounts}
                             columns={columns}
-                            pageSize={5} // Начальное количество строк на странице
-                            rowsPerPageOptions={[5, 10, 20]} // Доступные опции количества строк на странице
-                            paginationMode="client" // Или "server", если пагинация на сервере
-                            hideFooterPagination // Скрывает пагинатор (кнопки переключения страниц)
-                            disableColumnMenu // Скрывает меню столбца (сортировка, фильтрация)
-                            disableSelectionOnClick // Отключает выделение строки при клике
-                            density="compact" // Уменьшает высоту строк для более компактного вида
+                            pageSize={5}
+                            rowsPerPageOptions={[5, 10, 20]}
+                            paginationMode="client"
+                            hideFooterPagination
+                            disableColumnMenu
+                            disableSelectionOnClick
+                            density="compact"
                         />
                     </div>
                 )}
                 {passportSent && accounts.length === 0 && !error && (
                     <Typography mt={2}>
-                        У пользователя нет счетов.
+                        {t('depositMain.accountInfoComponent.userDoNotHasAccounts')}
                     </Typography>
                 )}
             </Box>

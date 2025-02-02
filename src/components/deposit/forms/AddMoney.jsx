@@ -11,6 +11,8 @@ import {createTheme, ThemeProvider} from "@mui/material/styles";
 import {ADD_TO_DEPOSIT, GET_DEPOSITS, WITHDRAW_DEPOSIT} from "../../../config.js";
 import {useState} from "react";
 import authFetch from "../../../hooks/authFetch.jsx";
+import '../../../i18n.js'
+import {useTranslation} from "react-i18next";
 
 const theme = createTheme({
     palette: {
@@ -25,86 +27,87 @@ const theme = createTheme({
     },
 });
 
-const AddMoney = () => {
+const AddMoney = ({onClose, onSubmit}) => {
+    const [t] = useTranslation();
 
     const [amount, setAmount] = useState(''); // Состояние для суммы
-        const [passport, setPassport] = useState('');
-        const [accounts, setAccounts] = useState([]);
-        const [selectedAccount, setSelectedAccount] = useState('');
-        const [passportSent, setPassportSent] = useState(false);
-        const [loading, setLoading] = useState(false); // Состояние загрузки
+    const [passport, setPassport] = useState('');
+    const [accounts, setAccounts] = useState([]);
+    const [selectedAccount, setSelectedAccount] = useState('');
+    const [passportSent, setPassportSent] = useState(false);
+    const [loading, setLoading] = useState(false); // Состояние загрузки
 
-        const handlePassportChange = (event) => {
-            setPassport(event.target.value);
-        };
+    const handlePassportChange = (event) => {
+        setPassport(event.target.value);
+    };
 
-        const handleAccountChange = (event) => {
-            setSelectedAccount(event.target.value);
-        };
+    const handleAccountChange = (event) => {
+        console.log('выбран с ивента: ', event.target.value)
+        setSelectedAccount(event.target.value);
+    };
 
-        const handleAmountChange = (event) => {
-            setAmount(event.target.value);
-        };
+    const handleAmountChange = (event) => {
+        setAmount(event.target.value);
+    };
 
-        const handleSendPassport = () => {
-            if (!passport) {
-                alert('Пожалуйста, введите паспортные данные.');
-                return;
+    const handleSendPassport = () => {
+        if (!passport) {
+            onSubmit(t('notifications.pleaseEnterID'), 'warn')
+            return;
+        }
+
+        setLoading(true);
+
+
+        authFetch(
+            `${GET_DEPOSITS}/${passport}`,
+            {
+                method: 'GET',
             }
-
-            setLoading(true);
-
-
-            authFetch(
-                `${GET_DEPOSITS}/${passport}`,
-                {
-                    method: 'GET',
-                }
-            ).then(r  => r.json()).then(
-                data => {
-                    console.log(data)
-                    setAccounts(data)
-                    setPassportSent(true)
-                    setLoading(false)
-                }
-            ).catch(r => {
-                console.error("Невалидный паспорт, ошибка:", r)
-                alert("Невалидный паспорт")
-            })
-
-        };
-
-        const handleWithdraw = () => {
-            if (!selectedAccount) {
-                alert('Пожалуйста, выберите счет.');
-                return;
+        ).then(r => r.json()).then(
+            data => {
+                console.log(data)
+                setAccounts(data)
+                setPassportSent(true)
+                setLoading(false)
             }
-            authFetch(
-                ADD_TO_DEPOSIT, {
-                    method: 'POST',
-                    headers: {
-                        "content-type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        fromAccount: selectedAccount,
-                        amount: amount,
-                        toAccount: selectedAccount
-                    }),
+        ).catch(r => {
+            console.error("Невалидный паспорт, ошибка:", r)
+            onSubmit(t("notifications.pleaseEnterID"), 'warn')
+        })
 
-                }).then((response) => {
-                if (response.status === 200) {
-                    alert('Средства положены:D');
-                } else {
-                    alert('Ошибка снятия средств.');
-                }
-            })
-            console.log(`url: ${WITHDRAW_DEPOSIT}`)
+    };
 
-            setSelectedAccount('');
-            setPassport('');
-            setPassportSent(false);
-            setAccounts([]);
-        };
+    const handleWithdraw = () => {
+        if (!selectedAccount) {
+            onSubmit(t("notifications.pleaseEnterAccount"), 'warn')
+            return;
+        }
+        authFetch(
+            ADD_TO_DEPOSIT, {
+                method: 'POST',
+                headers: {
+                    "content-type": "application/json",
+                },
+                body: JSON.stringify({
+                    fromAccount: selectedAccount,
+                    amount: amount,
+                    toAccount: selectedAccount
+                }),
+
+            }).then((response) => {
+            if (response.status === 200) {
+                onSubmit(t('notifications.operationSucceeded', 'success'))
+            } else {
+                onSubmit(t('notifications.operationFailed', 'error'))
+            }
+        })
+
+        setSelectedAccount('');
+        setPassport('');
+        setPassportSent(false);
+        setAccounts([]);
+    };
     return (
         <ThemeProvider theme={theme}>
             <Box
@@ -120,11 +123,11 @@ const AddMoney = () => {
                 }}
             >
                 <Typography variant="h5" component="h2" gutterBottom>
-                    Внесение средств
+                    {t('depositMain.addMoney.put')}
                 </Typography>
                 <TextField
                     id="passport"
-                    label="Паспортные данные"
+                    label={t("depositMain.addMoney.accountId")}
                     variant="outlined"
                     value={passport}
                     onChange={handlePassportChange}
@@ -135,20 +138,22 @@ const AddMoney = () => {
                     variant="contained"
                     onClick={handleSendPassport}
                     disabled={passportSent || loading}>
-                    {loading ? <CircularProgress size={24} /> : 'Отправить паспорт'}
+                    {loading ? <CircularProgress size={24}/> : t("depositMain.addMoney.sendPassport")}
                 </Button>
                 <FormControl fullWidth disabled={!passportSent}> {/* Блокируем, пока не отправлен паспорт */}
-                    <InputLabel id="account-label">Счет</InputLabel>
+                    <InputLabel id="account-label">
+                        {t('depositMain.addMoney.account')}
+                    </InputLabel>
                     <Select
                         labelId="account-label"
                         id="account"
                         value={selectedAccount}
-                        label="Счет"
+                        label={t("depositMain.addMoney.account")}
                         onChange={handleAccountChange}
                     >
                         {accounts.map((acc) => (
                             <MenuItem key={acc.id} value={acc.id}>
-                                {acc.depositAccountName} (Баланс: {acc.balance}) (Валюта: {acc.moneyType})
+                                {acc.depositAccountName} ({t('depositMain.withdrawComponent.balance')}: {acc.balance}) ({t('depositMain.withdrawComponent.currency')}: {acc.moneyType})
                             </MenuItem>
                         ))}
                     </Select>
@@ -156,17 +161,17 @@ const AddMoney = () => {
                 </FormControl>
                 <TextField
                     id="amount"
-                    label="Сумма пополнения"
+                    label={t("depositMain.addMoney.putAmount")}
                     variant="outlined"
-                    type="number" // Указываем тип number для ввода чисел
+                    type="number"
                     value={amount}
                     onChange={handleAmountChange}
                     fullWidth
-                    inputProps={{ min: 0 }} // Устанавливаем минимальное значение
+                    inputProps={{min: 0}}
                     disabled={!passportSent || !selectedAccount}
                 />
                 <Button variant="contained" onClick={handleWithdraw} disabled={!selectedAccount}>
-                    Пополнить
+                    {t('depositMain.addMoney.buttonPut')}
                 </Button>
             </Box>
         </ThemeProvider>

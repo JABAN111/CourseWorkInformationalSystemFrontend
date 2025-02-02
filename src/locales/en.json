@@ -1,0 +1,172 @@
+{
+  "sidebar": {
+    "deposit": "Account",
+    "bankCells": "Bank Cells",
+    "report": "Export"
+  },
+  "language": {
+    "change": "Change Language",
+    "russian": "🇷🇺 Russian",
+    "english": "🇺🇸 English"
+  },
+  "export": {
+    "logMessage": "Sending request to server with data:",
+    "bankOperations": "Bank Operations",
+    "artifactOperations": "Operations Related to Artifact",
+    "alertEnterPassport": "Please enter passport details.",
+    "invalidPassportError": "Invalid passport, error:",
+    "invalidPassport": "Invalid passport",
+    "configTitle": "Export Configuration",
+    "passportLabel": "Passport Details",
+    "sendPassport": "Send Passport",
+    "accountLabel": "Account",
+    "balance": "Balance",
+    "currency": "Currency",
+    "formatLabel": "Export Format",
+    "formatXlsx": "Excel (.xlsx)",
+    "formatPdf": "PDF",
+    "formatCsv": "CSV",
+    "operationTypes": "Operation Types",
+    "operations": {
+      "CREATE": "Account Creation",
+      "DEPOSITING": "Deposits",
+      "WITHDRAW": "Withdrawals",
+      "TRANSFER": "Transfers"
+    },
+    "generateReport": "Generate Report",
+    "depositExport": {
+      "exportConfiguration": "Export Configuration",
+      "accountId": "Client Passport",
+      "sendPassport": "Send Passport",
+      "account": "Account"
+    }
+  },
+  "depositMain": {
+    "newAccount": "New Account",
+    "withdraw": "Withdraw",
+    "put": "Deposit",
+    "transfer": "Transfer",
+    "info": "Account Information",
+    "creating": {
+      "newVault": "New Account",
+      "vaultName": "Account Name",
+      "accountId": "Client Passport",
+      "currency": "Currency",
+      "create": "Create Account",
+      "currencyType": {
+        "RULEON": "Ruleons",
+        "GALEON": "Galleons",
+        "EULEON": "Euroleons"
+      }
+    },
+    "withdrawComponent": {
+      "accountId": "Client Passport",
+      "withdraw": "Withdraw Funds",
+      "sendID": "Send Passport",
+      "account": "Account",
+      "balance": "Balance",
+      "currency": "Currency",
+      "amountOfWithdrawing": "Withdrawal Amount",
+      "buttonWithdraw": "Withdraw",
+      "formatExportTitle": "Export Format",
+      "operationType": "Operation Type",
+      "type": {
+        "DEPOSITING": "Deposit",
+        "WITHDRAW": "Withdrawals",
+        "TRANSFER": "Transfers",
+        "CREATE": "Account Creation"
+      },
+      "build": "Generate Report"
+    },
+    "addMoney": {
+      "put": "Deposit Funds",
+      "accountId": "Client Passport",
+      "sendPassport": "Send Passport",
+      "account": "Account",
+      "putAmount": "Deposit Amount",
+      "buttonPut": "Deposit"
+    },
+    "transferMoney": {
+      "transfer": "Transfer Funds",
+      "accountId": "Client Passport",
+      "sendPassport": "Send Passport",
+      "balance": "Balance",
+      "currency": "Currency",
+      "transferToUrSelf": "Transfer to One of Your Accounts",
+      "otherAccount": "Other Account Number",
+      "withdrawAccount": "Debiting Account",
+      "putAccount": "Crediting Account",
+      "transferAmount": "Transfer Amount",
+      "transferButton": "Transfer"
+    },
+    "accountInfoComponent": {
+      "accountInfo": "Account Information",
+      "accountId": "Client Passport",
+      "accountName": "Account Name",
+      "balance": "Balance",
+      "currency": "Currency",
+      "getInfo": "Get Information",
+      "userDoNotHasAccounts": "The user has no accounts."
+    }
+  },
+  "artifactMain": {
+    "getKey": "Get Key",
+    "getInfoAboutKeys": "Get Information About Issued Keys",
+    "getInfoAboutStorage": "Get Information About Storage",
+    "getKeyComponent": {
+      "info": "Artifact Information",
+      "ID": "Passport",
+      "chooseArtifact": "Choose Artifact",
+      "goalKeeping": "Purpose of Storing the Artifact",
+      "getKey": "Get Key",
+      "urKey": "Your Key"
+    },
+    "searchKey": {
+      "title": "Search Keys by Passport",
+      "search": "Find Keys",
+      "ID": "Passport",
+      "table": {
+        "artifact": "Artifact",
+        "UUID": "Storage UUID",
+        "lvlDangerous": "Danger Level",
+        "gave": "Issued",
+        "expired": "Expires",
+        "keyValue": "Key Value"
+      }
+    },
+    "storageInfo": {
+      "title": "Storage Information",
+      "UUID": "Storage UUID",
+      "getInfo": "Get Information",
+      "table": {
+        "UUID": "Cell UUID",
+        "artifact": "Artifact",
+        "dangerous": "Dangerous",
+        "currentClient": "Current Owner",
+        "creationDate": "Creation Date",
+        "lastChanges": "Last Changes",
+        "reasonToSave": "Reason for Storing"
+      }
+    },
+    "exportArtifact": {
+      "title": "Export Artifacts",
+      "ID": "Passport",
+      "types_optional": "Artifact Types (optional)",
+      "exportFormat": "Export Format",
+      "build": "Generate Report"
+    }
+  },
+  "notifications": {
+    "operationSucceeded": "Operation was successful",
+    "operationFailed": "Operation failed",
+    "pleaseEnterID": "Please enter passport",
+    "pleaseEnterAccount": "Please select an account",
+    "error": "error",
+    "pleaseEnter": {
+      "keysNotFound": "keys not found",
+      "withdrawAccount": "Please select a debiting account",
+      "putAccount": "Please select a crediting account",
+      "enterOtherAccountValue": "Please enter the other account number"
+    }
+  }
+}

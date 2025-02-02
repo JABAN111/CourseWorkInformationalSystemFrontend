@@ -1,0 +1,28 @@
+.public-container {
+  display: flex;
+  justify-content: center; /* Центрирование по горизонтали */
+  align-items: center;     /* Центрирование по вертикали */
+  min-height: 100vh;      /* Занимает всю высоту экрана */
+  background: linear-gradient(to bottom right, #283c42, #000000); /* Градиентный фон */
+  font-family: sans-serif; /* Изменим шрифт */
+}
+
+.error-message {
+  text-align: center;      /* Центрирование текста внутри блока */
+  background-color: rgba(255, 255, 255, 0.1); /* Полупрозрачный белый фон */
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Тень */
+  color: white; /* Белый цвет текста */
+  backdrop-filter: blur(5px); /* Размытие фона */
+  border: 1px solid rgba(255, 255, 255, 0.3)
+}
+
+.error-message h1 {
+  margin-bottom: 10px;
+  font-size: 2em; /* Увеличим размер заголовка */
+}
+
+.error-message p{
+  font-size: 1.2em;
+}

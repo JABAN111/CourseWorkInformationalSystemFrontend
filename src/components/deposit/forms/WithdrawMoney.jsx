@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useState} from 'react';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -8,9 +8,11 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress'; // Импортируем индикатор загрузки
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import {createTheme, ThemeProvider} from '@mui/material/styles';
 import authFetch from "../../../hooks/authFetch.jsx";
 import {GET_DEPOSITS, WITHDRAW_DEPOSIT} from "../../../config.js";
+import {useTranslation} from "react-i18next";
+import '../../../i18n.js'
 
 const theme = createTheme({
     palette: {
@@ -25,7 +27,9 @@ const theme = createTheme({
     },
 });
 
-const WithdrawForm = () => {
+const WithdrawForm = ({onClose, onSubmit}) => {
+    const [t] = useTranslation();
+
     const [amount, setAmount] = useState(''); // Состояние для суммы
     const [passport, setPassport] = useState('');
     const [accounts, setAccounts] = useState([]);
@@ -47,7 +51,7 @@ const WithdrawForm = () => {
 
     const handleSendPassport = () => {
         if (!passport) {
-            alert('Пожалуйста, введите паспортные данные.');
+            onSubmit(t("notifications.pleaseEnterID"), 'warn')
             return;
         }
 
@@ -59,7 +63,7 @@ const WithdrawForm = () => {
             {
                 method: 'GET',
             }
-        ).then(r  => r.json()).then(
+        ).then(r => r.json()).then(
             data => {
                 console.log(data)
                 setAccounts(data)
@@ -68,36 +72,35 @@ const WithdrawForm = () => {
             }
         ).catch(r => {
             console.error("Невалидный паспорт, ошибка:", r)
-            alert("Невалидный паспорт")
+            onSubmit(t("notifications.operationFailed"), 'error')
         })
 
     };
 
     const handleWithdraw = () => {
         if (!selectedAccount) {
-            alert('Пожалуйста, выберите счет.');
+            onSubmit(t("notifications.pleaseEnterAccount"), 'warn')
             return;
         }
         authFetch(
             WITHDRAW_DEPOSIT, {
-            method: 'POST',
-            headers: {
-                "content-type": "application/json",
-            },
-            body: JSON.stringify({
-                fromAccount: selectedAccount,
-                amount: amount,
-                toAccount: selectedAccount
-            }),
+                method: 'POST',
+                headers: {
+                    "content-type": "application/json",
+                },
+                body: JSON.stringify({
+                    fromAccount: selectedAccount,
+                    amount: amount,
+                    toAccount: selectedAccount
+                }),
 
-        }).then((response) => {
+            }).then((response) => {
             if (response.status === 200) {
-                alert('Средства успешно сняты.');
+                onSubmit(t("notifications.operationSucceeded"), 'success')
             } else {
-                alert('Ошибка снятия средств.');
+                onSubmit(t("notifications.operationFailed"), 'error')
             }
         })
-        console.log(`url: ${WITHDRAW_DEPOSIT}`)
 
         setSelectedAccount('');
         setPassport('');
@@ -120,11 +123,11 @@ const WithdrawForm = () => {
                 }}
             >
                 <Typography variant="h5" component="h2" gutterBottom>
-                    Снятие средств
+                    {t('depositMain.withdrawComponent.withdraw')}
                 </Typography>
                 <TextField
                     id="passport"
-                    label="Паспортные данные"
+                    label={t('depositMain.withdrawComponent.accountId')}
                     variant="outlined"
                     value={passport}
                     onChange={handlePassportChange}
@@ -134,21 +137,22 @@ const WithdrawForm = () => {
                 <Button
                     variant="contained"
                     onClick={handleSendPassport}
-                        disabled={passportSent || loading}>
-                    {loading ? <CircularProgress size={24} /> : 'Отправить паспорт'}
+                    disabled={passportSent || loading}>
+                    {loading ? <CircularProgress size={24}/>
+                        : t('depositMain.withdrawComponent.sendID')}
                 </Button>
                 <FormControl fullWidth disabled={!passportSent}> {/* Блокируем, пока не отправлен паспорт */}
-                    <InputLabel id="account-label">Счет</InputLabel>
+                    <InputLabel id="account-label">{t("depositMain.withdrawComponent.account")}</InputLabel>
                     <Select
                         labelId="account-label"
                         id="account"
                         value={selectedAccount}
-                        label="Счет"
+                        label={t("depositMain.withdrawComponent.account")}
                         onChange={handleAccountChange}
                     >
                         {accounts.map((acc) => (
                             <MenuItem key={acc.id} value={acc.id}>
-                                {acc.depositAccountName} (Баланс: {acc.balance}) (Валюта: {acc.moneyType})
+                                {acc.depositAccountName} ({t("depositMain.withdrawComponent.balance")}: {acc.balance}) ({t("depositMain.withdrawComponent.currency")}: {acc.moneyType})
                             </MenuItem>
                         ))}
                     </Select>
@@ -156,17 +160,17 @@ const WithdrawForm = () => {
                 </FormControl>
                 <TextField
                     id="amount"
-                    label="Сумма снятия"
+                    label={t("depositMain.withdrawComponent.amountOfWithdrawing")}
                     variant="outlined"
-                    type="number" // Указываем тип number для ввода чисел
+                    type="number"
                     value={amount}
                     onChange={handleAmountChange}
                     fullWidth
-                    inputProps={{ min: 0 }} // Устанавливаем минимальное значение
+                    inputProps={{min: 0}}
                     disabled={!passportSent || !selectedAccount}
                 />
                 <Button variant="contained" onClick={handleWithdraw} disabled={!selectedAccount}>
-                    Снять
+                    {t("depositMain.withdrawComponent.buttonWithdraw")}
                 </Button>
             </Box>
         </ThemeProvider>

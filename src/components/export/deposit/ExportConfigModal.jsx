@@ -1,22 +1,25 @@
-import { useState } from "react";
+import {useState} from "react";
 import {
-    Modal,
+    Alert,
     Box,
-    Typography,
-    TextField,
     Button,
+    Checkbox,
+    CircularProgress,
     FormControl,
     FormControlLabel,
-    Checkbox,
     FormLabel,
-    Select,
-    MenuItem,
     InputLabel,
-    CircularProgress,
+    MenuItem,
+    Modal,
+    Select, Snackbar,
+    TextField,
+    Typography,
 } from "@mui/material";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import {createTheme, ThemeProvider} from "@mui/material/styles";
 import authFetch from "../../../hooks/authFetch.jsx";
-import { GET_DEPOSITS } from "../../../config.js";
+import {GET_DEPOSITS} from "../../../config.js";
+import {useTranslation} from "react-i18next";
+import '../../../i18n.js'
 
 const theme = createTheme({
     palette: {
@@ -31,7 +34,27 @@ const theme = createTheme({
     },
 });
 
-const ExportConfigModal = ({ open, onClose, onSubmit }) => {
+const ExportConfigModal = ({open, onClose, onSubmit}) => {
+
+    const { t } = useTranslation(); // Подключаем переводы
+
+    const [notification, setNotification] = useState({
+        open: false,
+        message: '',
+        severity: 'success',
+    });
+
+    const showNotification = (message, severity = 'success') => {
+        setNotification({open: true, message, severity});
+    };
+    const handleCloseNotification = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setNotification((prev) => ({...prev, open: false}));
+    };
+
+
     const [passport, setPassport] = useState("");
     const [exportFormat, setExportFormat] = useState("xlsx");
     const [operations, setOperations] = useState({
@@ -52,20 +75,19 @@ const ExportConfigModal = ({ open, onClose, onSubmit }) => {
     const isReadyToSubmit = passportSent && selectedAccount;
 
     const handlePassportChange = (event) => {
-        setPassport(event.target.value)
-        setPassportSent(false)
-
-    }
+        setPassport(event.target.value);
+        setPassportSent(false);
+    };
 
     const handleSendPassport = () => {
         if (!passport) {
-            alert("Пожалуйста, введите паспортные данные.");
+            console.error("Пожалуйста, введите паспортные данные.");
             return;
         }
 
         setLoading(true);
 
-        authFetch(`${GET_DEPOSITS}/${passport}`, { method: "GET" })
+        authFetch(`${GET_DEPOSITS}/${passport}`, {method: "GET"})
             .then((response) => response.json())
             .then((data) => {
                 setAccounts(data);
@@ -82,7 +104,7 @@ const ExportConfigModal = ({ open, onClose, onSubmit }) => {
     const handleAccountChange = (event) => setSelectedAccount(event.target.value);
 
     const handleOperationChange = (event) =>
-        setOperations({ ...operations, [event.target.name]: event.target.checked });
+        setOperations({...operations, [event.target.name]: event.target.checked});
 
     const handleCurrencyChange = (event) =>
         setExcludedCurrencies({
@@ -104,6 +126,154 @@ const ExportConfigModal = ({ open, onClose, onSubmit }) => {
         onClose();
     };
 
+    const downloadXlsxReport = () => {
+        const payload = {
+            passport,
+            account: selectedAccount,
+            exportFormat: "xlsx",
+            operations: Object.keys(operations).filter((key) => operations[key]),
+        };
+
+        const queryParams = new URLSearchParams();
+        queryParams.append("accountId", selectedAccount);
+
+        // Правильное добавление параметров types
+        payload.operations.forEach((operation) => {
+            queryParams.append("types", operation);
+        });
+
+        setLoading(true);
+
+        authFetch(`http://localhost:8080/api/v0/export/deposit/xlsx?${queryParams.toString()}`, {
+            method: "GET",
+        })
+            .then((response) => {
+                if (response.ok) {
+                    return response.blob();
+                } else {
+                    throw new Error("Ошибка при скачивании файла.");
+                }
+            })
+            .then((blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "deposit_report.xlsx";
+                a.click();
+                window.URL.revokeObjectURL(url);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error("Ошибка при скачивании отчета:", error);
+                alert("Ошибка при скачивании отчета");
+                setLoading(false);
+            });
+    }
+    const downloadPdfReport = () => {
+        const payload = {
+            passport,
+            account: selectedAccount,
+            exportFormat: "pdf",
+            operations: Object.keys(operations).filter((key) => operations[key]),
+        };
+
+        const queryParams = new URLSearchParams();
+        queryParams.append("accountId", selectedAccount);
+
+        // Правильное добавление параметров types
+        payload.operations.forEach((operation) => {
+            queryParams.append("types", operation);
+        });
+
+        setLoading(true);
+
+        authFetch(`http://localhost:8080/api/v0/export/deposit/pdf?${queryParams.toString()}`, {
+            method: "GET",
+        })
+            .then((response) => {
+                if (response.ok) {
+                    return response.blob();
+                } else {
+                    throw new Error("Ошибка при скачивании файла.");
+                }
+            })
+            .then((blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "deposit_report.pdf";
+                a.click();
+                window.URL.revokeObjectURL(url);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error("Ошибка при скачивании отчета:", error);
+                alert("Ошибка при скачивании отчета");
+                setLoading(false);
+            });
+    }
+
+    const downloadCsvReport = () => {
+        const payload = {
+            passport,
+            account: selectedAccount,
+            exportFormat: "csv",
+            operations: Object.keys(operations).filter((key) => operations[key]),
+        };
+
+        const queryParams = new URLSearchParams();
+        queryParams.append("accountId", selectedAccount);
+
+        // Правильное добавление параметров types
+        payload.operations.forEach((operation) => {
+            queryParams.append("types", operation);
+        });
+
+        setLoading(true);
+
+        authFetch(`http://localhost:8080/api/v0/export/deposit/csv?${queryParams.toString()}`, {
+            method: "GET",
+        })
+            .then((response) => {
+                if (response.ok) {
+                    return response.blob();
+                } else {
+                    throw new Error("Ошибка при скачивании файла.");
+                }
+            })
+            .then((blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "deposit_report.csv";
+                a.click();
+                window.URL.revokeObjectURL(url);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error("Ошибка при скачивании отчета:", error);
+                alert("Ошибка при скачивании отчета");
+                setLoading(false);
+            });
+    };
+
+    const processDownload = () => {
+        switch (exportFormat) {
+            case "xlsx":
+                downloadXlsxReport()
+                break
+            case "pdf":
+                downloadPdfReport()
+                break
+            case "csv":
+                downloadCsvReport()
+                break
+            default:
+                downloadXlsxReport()
+                break
+        }
+
+    }
     return (
         <ThemeProvider theme={theme}>
             <Modal open={open} onClose={onClose}>
@@ -122,30 +292,30 @@ const ExportConfigModal = ({ open, onClose, onSubmit }) => {
                     }}
                 >
                     <Typography variant="h6" gutterBottom>
-                        Конфигурация экспорта
+                        {t('export.depositExport.exportConfiguration')}
                     </Typography>
 
                     <TextField
                         id="passport"
-                        label="Паспортные данные"
+                        label={t('export.depositExport.accountId')}
                         variant="outlined"
                         fullWidth
                         value={passport}
                         onChange={handlePassportChange}
-                        sx={{ mb: 2 }}
+                        sx={{mb: 2}}
                     />
 
                     <Button
                         variant="contained"
                         onClick={handleSendPassport}
                         disabled={passportSent || loading}
-                        sx={{ mb: 2 }}
+                        sx={{mb: 2}}
                     >
-                        {loading ? <CircularProgress size={24} /> : "Отправить паспорт"}
+                        {loading ? <CircularProgress size={24}/> : t("export.depositExport.sendPassport")}
                     </Button>
 
-                    <FormControl fullWidth disabled={!passportSent} sx={{ mb: 2 }}>
-                        <InputLabel id="account-label">Счет</InputLabel>
+                    <FormControl fullWidth disabled={!passportSent} sx={{mb: 2}}>
+                        <InputLabel id="account-label">{t("export.depositExport.account")}</InputLabel>
                         <Select
                             labelId="account-label"
                             id="account"
@@ -154,15 +324,15 @@ const ExportConfigModal = ({ open, onClose, onSubmit }) => {
                         >
                             {accounts.map((acc) => (
                                 <MenuItem key={acc.id} value={acc.id}>
-                                    {acc.depositAccountName} (Баланс: {acc.balance}) (Валюта:{" "}
-                                    {acc.moneyType})
+                                    {acc.depositAccountName} ({t('depositMain.withdrawComponent.balance')}: {acc.balance})
+                                    ({t('depositMain.withdrawComponent.currency')}: {acc.moneyType})
                                 </MenuItem>
                             ))}
                         </Select>
                     </FormControl>
 
-                    <FormControl fullWidth sx={{ mb: 2 }}>
-                        <FormLabel>Формат экспорта</FormLabel>
+                    <FormControl fullWidth sx={{mb: 2}}>
+                        <FormLabel>{t('depositMain.withdrawComponent.formatExportTitle')}</FormLabel>
                         <Select
                             value={exportFormat}
                             onChange={(e) => setExportFormat(e.target.value)}
@@ -174,9 +344,9 @@ const ExportConfigModal = ({ open, onClose, onSubmit }) => {
                         </Select>
                     </FormControl>
 
-                    <FormControl component="fieldset" sx={{ mb: 2 }}>
-                        <FormLabel>Типы операций</FormLabel>
-                        {["deposits", "withdrawals", "transfers"].map((type) => (
+                    <FormControl component="fieldset" sx={{mb: 2}}>
+                        <FormLabel>{t('depositMain.withdrawComponent.operationType')}</FormLabel>
+                        {["CREATE", "DEPOSITING", "WITHDRAW", "TRANSFER"].map((type) => (
                             <FormControlLabel
                                 key={type}
                                 control={
@@ -188,51 +358,33 @@ const ExportConfigModal = ({ open, onClose, onSubmit }) => {
                                     />
                                 }
                                 label={
-                                    type === "deposits"
-                                        ? "Внесения сумм"
-                                        : type === "withdrawals"
-                                            ? "Снятия"
-                                            : "Переводы"
+                                    type === "DEPOSITING"
+                                        ? t('depositMain.withdrawComponent.type.DEPOSITING')
+                                        : type === "WITHDRAW"
+                                            ? t('depositMain.withdrawComponent.type.WITHDRAW')
+                                            : type === "TRANSFER"
+                                                ? t('depositMain.withdrawComponent.type.TRANSFER')
+                                                : type === "CREATE"
+                                                    ? t('depositMain.withdrawComponent.type.CREATE')
+                                                    : type
                                 }
                             />
                         ))}
                     </FormControl>
 
-                    <FormControl component="fieldset" sx={{ mb: 2 }}>
-                        <FormLabel>Исключить валюты</FormLabel>
-                        {["galeons", "rubalions", "euralions"].map((currency) => (
-                            <FormControlLabel
-                                key={currency}
-                                control={
-                                    <Checkbox
-                                        name={currency}
-                                        checked={excludedCurrencies[currency]}
-                                        onChange={handleCurrencyChange}
-                                        disabled={!passportSent}
-                                    />
-                                }
-                                label={
-                                    currency === "galeons"
-                                        ? "Галеоны"
-                                        : currency === "rubalions"
-                                            ? "Рубалионы"
-                                            : "Евралионы"
-                                }
-                            />
-                        ))}
-                    </FormControl>
 
                     <Button
                         variant="contained"
                         color="primary"
                         fullWidth
-                        onClick={handleSubmit}
+                        onClick={processDownload}
                         disabled={!isReadyToSubmit}
                     >
-                        Сформировать отчет
+                        {t('depositMain.withdrawComponent.build')}
                     </Button>
                 </Box>
             </Modal>
+
         </ThemeProvider>
     );
 };
