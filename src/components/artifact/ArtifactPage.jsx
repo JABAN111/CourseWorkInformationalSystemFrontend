@@ -7,6 +7,8 @@ import ArtifactStorageInfo from "./forms/ArtifactStorageInfo.jsx";
 import '../../i18n.js'
 import {useTranslation} from "react-i18next";
 import {Alert, Snackbar} from "@mui/material";
+import RetrieveArtifact from "./forms/RetrieveArtifact.jsx";
+import RequestUpdate from "./forms/RequestUpdate.jsx";
 
 const modalStyles = {
     position: 'absolute',
@@ -27,6 +29,10 @@ const ArtifactPage = () => {
         message: '',
         severity: 'success',
     });
+    const [requestUpdate, setRequestUpdate] = useState(false);
+    const handleOpenRequestUpdate = () => setRequestUpdate(true);
+    const handleCloseRequestUpdate = () => setRequestUpdate(false);
+
     const showNotification = (message, severity = 'success') => {
         setNotification({open: true, message, severity});
     };
@@ -51,12 +57,17 @@ const ArtifactPage = () => {
         setAllKeys(false);
     }
 
+
     const [artifactStorageInfo, setArtifactStorageInfo] = useState(false);
     const handleOpenArtifactStorageInfo = () => setArtifactStorageInfo(true);
     const handleCloseArtifactStorageInfo = (message, severity) => {
         // showNotification(message, severity);
         setArtifactStorageInfo(false);
     }
+
+    const [retrievArtifact, setRetrievArtifact] = useState(false)
+    const handleOpenRetrievModal = () => setRetrievArtifact(true);
+    const handleCloseRetrievModal = () => setRetrievArtifact(false);
 
 
     return (
@@ -84,6 +95,18 @@ const ArtifactPage = () => {
                             <div style={{cursor: 'pointer'}} onClick={handleOpenArtifactStorageInfo}>
                                 <img src="/logo/put.svg" alt="put money"/>
                                 <p>{t('artifactMain.getInfoAboutStorage')}</p>
+                            </div>
+                        </div>
+                        <div className="dashboard-item">
+                            <div style={{cursor: 'pointer'}} onClick={handleOpenRetrievModal}>
+                                <img src="/logo/put.svg" alt="retrieve artifact"/>
+                                <p>{t('artifactMain.retrieveArtifac')}</p>
+                            </div>
+                        </div>
+                        <div className="dashboard-item">
+                            <div style={{cursor: 'pointer'}} onClick={handleOpenRequestUpdate}>
+                                <img src="/logo/newAccount.svg" alt="retrieve artifact"/>
+                                <p>{t('artifactMain.requestUpdate')}</p>
                             </div>
                         </div>
                     </div>
@@ -121,6 +144,29 @@ const ArtifactPage = () => {
                     <ArtifactStorageInfo onClose={handleCloseArtifactStorageInfo}/>
                 </Box>
             </Modal>
+
+            <Modal
+                open={retrievArtifact}
+                onClose={handleCloseRetrievModal}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={modalStyles}>
+                    <RetrieveArtifact onClose={handleCloseRetrievModal}/>
+                </Box>
+            </Modal>
+
+            <Modal
+                open={requestUpdate}
+                onClose={handleCloseRequestUpdate}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={modalStyles}>
+                    <RequestUpdate onClose={handleCloseRequestUpdate}/>
+                </Box>
+            </Modal>
+
             <Snackbar
                 open={notification.open}
                 autoHideDuration={8000}

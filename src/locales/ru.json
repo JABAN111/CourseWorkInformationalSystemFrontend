@@ -113,6 +113,18 @@
     "getKey": "Получить ключ",
     "getInfoAboutKeys": "Получить информацию о выданных ключах",
     "getInfoAboutStorage": "Получить информацию о ячейке",
+    "retrieveArtifac": "Забрать артефакт",
+    "requestUpdate": "Запросить обновление",
+    "updateDangerLevel": "Обновление уровня",
+    "chooseArtifact": "Выберите артефакт",
+    "chooseNewDangerLevel": "Новый уровень",
+    "retrieveArtifact": {
+      "info": "Получить артефакт",
+      "passport": "Паспортные данные",
+      "cellNumber": "Номер ячейки",
+      "getArtifact": "Получить ключ"
+    },
+
     "getKeyComponent": {
       "info": "Информация об артефакте",
       "ID": "Паспорт",
@@ -161,7 +173,7 @@
     "operationFailed": "Операция не была выполнена",
     "pleaseEnterID": "Пожалуйста, введите паспорт",
     "pleaseEnterAccount": "Пожалуйста, выберите счет",
-    "error": "ошибка",
+    "error": "Операция не завершена, в данных ошибках",
     "pleaseEnter": {
       "keysNotFound": "ключи не найдены",
       "withdrawAccount": "Пожалуйста, выберите счет для списания",

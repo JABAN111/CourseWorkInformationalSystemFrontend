@@ -93,7 +93,7 @@ const NewAccountForm = (
             }).catch(() =>
                 onSubmit(t('notifications.operationFailed'), 'error'))
         } catch (error) {
-            onSubmit('notifications.operationFailed')
+            onSubmit(t('notifications.operationFailed'), 'error')
             console.error('Error creating account:', error);
         }
         onClose()

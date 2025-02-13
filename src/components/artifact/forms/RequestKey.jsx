@@ -26,9 +26,6 @@ const theme = createTheme({
 });
 
 
-
-
-
 const RequestKey = () => {
     const [t] = useTranslation();
 
@@ -77,24 +74,30 @@ const RequestKey = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:8080/api/v0/artifact/get-key', { // Замените на ваш API endpoint
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: artifactName,
-                    magicalProperty: {
-                        dangerLevel: dangerLevel
+            // console.log(description)
+            const encodedDescription = encodeURIComponent(description);
+            const urlT = `http://localhost:8080/api/v0/artifact/get-key/`+encodedDescription
+            console.log(urlT)
+            const response = await authFetch(urlT,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
                     },
-                    currentClient: {
-                        passportID: passport
-                    },
-                    artifactHistory: {
-                        reasonToSave: description,
-                    }
-                }),
-            });
+                    body: JSON.stringify({
+                        name: artifactName,
+                        // magicalProperty: {
+                        //     dangerLevel: dangerLevel,
+                        //     property:
+                        // },
+                        currentClient: {
+                            passportID: passport
+                        },
+                        // artifactHistory: {
+                        //     reasonToSave: description,
+                        // }
+                    }),
+                });
             if (!response.ok) throw new Error("Ошибка получения ключа");
 
             const blob = await response.blob();
@@ -148,7 +151,8 @@ const RequestKey = () => {
                         />
 
                         <FormControl fullWidth margin="normal">
-                            <InputLabel id="artifact-label">{t("artifactMain.getKeyComponent.chooseArtifact")}</InputLabel>
+                            <InputLabel
+                                id="artifact-label">{t("artifactMain.getKeyComponent.chooseArtifact")}</InputLabel>
                             <Select
                                 labelId="artifact-label"
                                 value={artifactName}

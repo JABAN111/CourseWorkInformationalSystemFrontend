@@ -1,4 +1,4 @@
-import {useState, useTransition} from "react";
+import {useState} from "react";
 import {
     TextField,
     Button,
@@ -51,6 +51,8 @@ const ArtifactStorageInfo = () => {
                 `http://localhost:8080/api/v0/storage/get-info/${uuid}`,
                 { method: "GET" }
             );
+
+
             if (!response.ok) throw new Error("Ячейка не найдена.");
 
             const data = await response.json();
@@ -103,8 +105,6 @@ const ArtifactStorageInfo = () => {
                                     <TableCell>{t('artifactMain.storageInfo.table.dangerous')}</TableCell>
                                     <TableCell>{t('artifactMain.storageInfo.table.currentClient')}</TableCell>
                                     <TableCell>{t('artifactMain.storageInfo.table.creationDate')}</TableCell>
-                                    <TableCell>{t('artifactMain.storageInfo.table.lastChanges')}</TableCell>
-                                    <TableCell>{t('artifactMain.storageInfo.table.reasonToSave')}</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -114,8 +114,6 @@ const ArtifactStorageInfo = () => {
                                     <TableCell>{storage.artifact.magicalProperty.dangerLevel}</TableCell>
                                     <TableCell>{storage.artifact.currentClient?.passportID || "Нет владельца"}</TableCell>
                                     <TableCell>{new Date(storage.artifact.createdAt).toLocaleDateString()}</TableCell>
-                                    <TableCell>{new Date(storage.artifact.history.changeDate).toLocaleDateString()}</TableCell>
-                                    <TableCell>{storage.artifact.history.reasonToSave}</TableCell>
                                 </TableRow>
                             </TableBody>
                         </Table>

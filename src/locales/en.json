@@ -113,6 +113,14 @@
     "getKey": "Get Key",
     "getInfoAboutKeys": "Get Information About Issued Keys",
     "getInfoAboutStorage": "Get Information About Storage",
+    "retrieveArtifac": "Retrieve artifact",
+    "requestUpdate": "Request update",
+    "retrieveArtifact": {
+      "info": "Retrieve artifact",
+      "passport": "Passport details",
+      "cellNumber": "Cell number",
+      "getArtifact": "Retrieve key"
+    },
     "getKeyComponent": {
       "info": "Artifact Information",
       "ID": "Passport",
@@ -161,7 +169,7 @@
     "operationFailed": "Operation failed",
     "pleaseEnterID": "Please enter passport",
     "pleaseEnterAccount": "Please select an account",
-    "error": "error",
+    "error": "Error in entered data, fix it and try again",
     "pleaseEnter": {
       "keysNotFound": "keys not found",
       "withdrawAccount": "Please select a debiting account",

@@ -58,7 +58,7 @@ const AddMoney = ({onClose, onSubmit}) => {
 
         setLoading(true);
 
-
+        console.log('отправляем паспорт', passport)
         authFetch(
             `${GET_DEPOSITS}/${passport}`,
             {
@@ -99,7 +99,7 @@ const AddMoney = ({onClose, onSubmit}) => {
             if (response.status === 200) {
                 onSubmit(t('notifications.operationSucceeded', 'success'))
             } else {
-                onSubmit(t('notifications.operationFailed', 'error'))
+                onSubmit(t('notifications.operationFailed'), 'error')
             }
         })
 
